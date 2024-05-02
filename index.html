@@ -5,31 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biggest Maze Ever</title>
     <style>
-        .cell {
-            width: 20px;
-            height: 20px;
+        #mazeCanvas {
             border: 1px solid black;
-            background-color: #fff;
-            display: inline-block;
-        }
-        .wall {
-            background-color: #000;
         }
     </style>
 </head>
 <body>
-    <div id="maze"></div>
+    <canvas id="mazeCanvas"></canvas>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
     <script>
-        const rows = 21; // Adjust the size of the maze
-        const cols = 21; // Adjust the size of the maze
+        const rows = 690; // Adjust the size of the maze
+        const cols = 690; // Adjust the size of the maze
 
         // Function to generate the maze
         function generateMaze() {
-            const mazeDiv = document.getElementById('maze');
+            const mazeCanvas = document.getElementById('mazeCanvas');
+            mazeCanvas.width = cols * 20;
+            mazeCanvas.height = rows * 20;
+            const mazeCtx = mazeCanvas.getContext('2d');
             const maze = initializeGrid(rows, cols);
             generateMazeRecursive(maze, 0, 0);
-            displayMaze(maze, mazeDiv);
+            displayMaze(maze, mazeCtx);
+            convertToImage(mazeCanvas);
         }
 
         // Function to initialize the maze grid
@@ -64,20 +62,27 @@
             }
         }
 
-        // Function to display the maze
-        function displayMaze(grid, mazeDiv) {
-            mazeDiv.innerHTML = ''; // Clear previous maze
+        // Function to display the maze on canvas
+        function displayMaze(grid, ctx) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = '#000';
             for (let i = 0; i < grid.length; i++) {
                 for (let j = 0; j < grid[0].length; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
                     if (grid[i][j]) {
-                        cell.className += ' wall';
+                        ctx.fillRect(j * 20, i * 20, 20, 20);
                     }
-                    mazeDiv.appendChild(cell);
                 }
-                mazeDiv.appendChild(document.createElement('br'));
             }
+        }
+
+        // Function to convert canvas to image and display it
+        function convertToImage(canvas) {
+            html2canvas(canvas).then(function (canvas) {
+                const image = canvas.toDataURL('image/png');
+                const imgElement = document.createElement('img');
+                imgElement.src = image;
+                document.body.appendChild(imgElement);
+            });
         }
 
         // Generate the maze when the page loads
